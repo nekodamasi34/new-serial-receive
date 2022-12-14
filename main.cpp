@@ -3,6 +3,7 @@
 #include <MbedHardwareSerial.hpp>
 #include <Controller.hpp>
 #include <fstream>
+#include <md.hpp>
 
 
 SerialDev *dev = new MbedHardwareSerial(new BufferedSerial(PC_10, PC_11, 115200));
@@ -10,10 +11,11 @@ SerialBridge serial(dev);
 
 Controller msc;
 
-PwmOut pwm1(D14);
-PwmOut pwm2(D15);
-DigitalOut jo1(D12);
-DigitalOut jo2(D13);
+
+MD md1(D14,D12);
+MD md2(D15,D13);
+
+
 
 float m1;
 float m2;
@@ -25,8 +27,6 @@ float y;
 int main()
 {
     serial.add_frame(0, &msc);
-    pwm1.period(0.00005);
-    pwm2.period(0.00005);
 
     while (1) {
 
@@ -40,24 +40,11 @@ int main()
 
             m1 = ( 0.7 * y ) + ( 0.5 * x );
             m2 = ( 0.7 * y ) - ( 0.5 * x );
+
+            md1.drive(m1);
+            md2.drive(m2);
             
-
-            if(m1 < 0){
-                jo1 = 0;
-                m1 *= -1;
-            }else if(m1 > 0){
-                jo1 = 1;
-            }
-
-            if(m2 < 0){
-                jo2 = 1;
-                m2 *= -1;
-            }else if(m2 > 0){
-                jo2 = 0;
-            }
-
-            pwm1 = m1;
-            pwm2 = m2;
+        
         }
     }
 }
